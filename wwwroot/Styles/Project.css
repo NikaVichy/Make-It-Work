@@ -1,0 +1,75 @@
+﻿.project-container{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+
+    column-gap: 80px;
+    row-gap: 50px;
+
+    justify-content: center;
+
+    padding: 0 2% 0 2%;
+
+    box-sizing: border-box;
+}
+
+.project{
+    display: flex;
+    background-color: #a0a0a0;
+    border-radius: 20px;
+
+    height: 208px;
+    width: 100%;
+
+    position: relative;
+
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+}
+
+.new-project{
+    justify-content: center;
+    align-items: center;
+}
+
+.project-background{
+    position: absolute;
+
+    top: 10px;
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+
+    border-radius: 10px;
+
+    background-color: #d9d9d9;
+}
+
+.naming-box{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: rgba(0, 0, 0, 45%);
+
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+
+    color: #fff;
+    font-weight: 300;
+}
+
+.project-name{
+    padding-top: 4px;
+    margin-left: 15px;
+    margin-bottom: 5px;
+
+    font-size: 24px;
+}
+
+.owner{
+    margin-left: 15px;
+    margin-bottom: 13px;
+}

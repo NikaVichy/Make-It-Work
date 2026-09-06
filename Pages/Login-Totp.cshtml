@@ -1,0 +1,24 @@
+﻿@page
+@model MakeItWork.Pages.Login_TotpModel
+@{
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/Styles/LoginRegister.css">
+    <link rel="stylesheet" href="~/Styles/LoginTotp.css">
+}
+
+@section Scripts{
+    <script src="~/Scripts/LoginTotp.js"></script>
+}
+
+<div class="main-element">
+    <p class="logo-name centered-text">Make It Work</p>
+    <p class="action-name centered-text">One more thing...</p>
+    <p class="action-name centered-text">You've set up the one time<br/>passcode for your account</p>
+
+    <form method="post" autocomplete="off">
+        <input type="number" id="code" name="code" placeholder="Enter passcode" class="centered-text input-element user-input">
+        <input type="submit" id=submit-button" value="Submit" class="centered-text input-element submit-element">
+    </form>
+</div>

@@ -1,0 +1,119 @@
+﻿.form-container{
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    background-color: #a0a0a0;
+
+    margin-left: 60px;
+    margin-right: 60px;
+
+    border-radius: 50px;
+}
+
+.outer-container{
+    margin: 55px 110px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.inner-container{
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+}
+
+.font-sizer{
+    font-size: 30px;
+    font-weight: 400;
+}
+
+.black-font-setter{
+    font-weight: 300;
+}
+
+.icon-container{
+    display: flex;
+    flex-direction: column;
+}
+
+.icon-shower{
+    width: 350px;
+    height: 350px;
+    background-color: #d9d9d9;
+
+    border-radius: 25px;
+}
+
+.icon-changer{
+    color: #fff;
+    background-color: #000;
+
+    border-radius: 25px;
+
+    text-align: center;
+    align-content: center;
+
+    height: 110px;
+    width: 350px;
+
+    margin-top: 53px;
+}
+
+.text-container{
+    display: flex;
+    flex-direction: column;
+
+    margin-left: 50px;
+}
+
+.placeholder-setter{
+    border: none;
+    border-radius: 45px;
+
+    background-color: #d9d9d9;
+    color: #000;
+
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.name-field{
+    width: 1080px;
+    height: 120px;
+}
+
+.description-field{
+    margin-top: 40px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    width: 1080px;
+    height: 310px;
+
+    align-self: normal;
+    justify-self: normal;
+}
+
+textarea::-webkit-scrollbar {
+    display: none;
+}
+
+.create-button{
+    color: #fff;
+    background-color: #000;
+
+    width: 600px;
+    height: 110px;
+
+    margin-top: 30px;
+
+    border: none;
+    border-radius: 25px;
+}

@@ -1,0 +1,144 @@
+﻿:root{
+  --main-max-w: 60rem;
+  --main-w: min(90vw, var(--main-max-w));
+  --main-max-h: 90vh;
+  --gap: 1rem;
+}
+
+a{
+    margin: 0px;
+    padding: 0px;
+    color: black;
+    text-decoration: solid underline;
+}
+
+body, html{
+    height: 100%;
+}
+
+body{
+    min-height: 580px;
+    background-color: #a0a0a0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container{
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-element{
+    width: var(--main-w);
+    max-height: var(--main-max-h);
+    box-sizing: border-box;
+    padding: 1.5rem;
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #d9d9d9;
+
+        border-radius: 100px 0px 0px 100px;
+}
+
+#sub-element{
+
+    width: min(28vw, 20rem);
+
+    max-height: var(--main-max-h);
+    box-sizing: border-box;
+
+    border-radius: 0px 100px 100px 0px;
+
+    display: flex;
+
+    text-align: center;
+
+    align-items: center;
+    justify-content: center;
+
+    background-color: #000;
+}
+
+.log-in-account{
+    font-size: 30px;
+    color: #d9d9d9;
+}
+
+.logo-name {
+    margin-top: 5vh;
+    font-size: 45px;
+}
+
+.action-name{
+    margin-top: 4vh;
+    font-size: 30px;
+}
+
+form{
+    margin-top: 4vh;
+    align-items: center;
+    display: grid;
+    grid-auto-flow: row;
+    row-gap: 4vh;
+}
+
+.input-element{
+    width: 400px;
+    height: 60px;
+    border-radius: 40px;
+    font-size: 30px;
+
+    border: 2px solid #000;
+}
+
+.user-input{
+    background-color: #d9d9d9;
+    color: #000;
+}
+
+.submit-element{
+    background-color: #000;
+    color: #d9d9d9;
+}
+
+.submit-element:hover{
+    cursor: pointer;
+}
+
+input::placeholder{
+    color: #000;
+    opacity: 1; /* for some browsers by default is 0.5*/
+}
+
+.footer-text{
+    margin-top: 30px;
+    font-size: 15px;
+}
+
+@media (max-width: 900px){
+    .container{
+        flex-direction: column;
+    }
+
+    .main-element{
+        border-radius: 100px 100px 0px 0px;
+    }
+
+    #sub-element{
+        height: 5rem;
+        width: var(--main-w);
+        border-radius: 0px 0px 100px 100px;
+    }
+
+    .input-element{
+        width: 80vw;
+    }
+}

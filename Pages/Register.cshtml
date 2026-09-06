@@ -1,0 +1,33 @@
+﻿@page
+@model MakeItWork.Pages.RegisterModel
+
+@section Styles{
+    <link href="@Url.Content("~/Styles/LoginRegister.css")" rel="stylesheet" type="text/css"/>
+}
+
+@section Scripts{
+    <script src="~/Scripts/Register.js"></script>
+}
+
+<div class="container">
+    <div class="main-element">
+        <p class="logo-name centered-text">
+            Make It Work
+        </p>
+        <p class="action-name centered-text">
+            Sign up
+        </p>
+        <form method="post" autocomplete="off">
+            <input type="text" name="username" id="username" placeholder="Username" class="centered-text input-element user-input">
+            <input type="password" name="password" id="password" placeholder="Password" class="centered-text input-element user-input">
+            <input type="password" id="repeated-password" placeholder="Repeat password" class="centered-text input-element user-input">
+
+            <button type="submit" id="submit-button" class="centered-text input-element submit-element">Start planning</button>
+        </form>
+    </div>
+    <a href="/Login">
+        <div id="sub-element" class="register-sub-element">
+            <p class="log-in-account">Already have<br/>an account?</p>
+        </div>
+    </a>
+</div>

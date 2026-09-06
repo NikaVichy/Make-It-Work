@@ -1,0 +1,47 @@
+﻿@{
+    var showHeader = ViewData["ShowHeader"] as bool? ?? true;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make it work</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/Styles/CommonStyles.css">
+    @if(showHeader){
+    <link rel="stylesheet" href="~/Styles/Header.css">
+    }
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    @if(showHeader)
+    {
+    <header>
+        <img src="~/Pictures/settingsBar.png" alt="settings-bar" class="settings-bar nav-displayed-picture">
+        <nav>
+            <a href="~/Project" class="nav-item home-item">Project</a>
+            <a href="~/Groups" class="nav-item group-item">Groups</a>
+            <a href="~/Users" class="nav-item user-item">Users</a> 
+            @* The only way I see to make them bold is to use css on the corresponding page. *@
+        </nav>
+        <img src="~/Pictures/nightTheme.png" alt="night-theme" class="theme-changer nav-displayed-picture">
+        <div class="user-corner">
+            <a href="/Users/@((User?.Identity?.Name) ?? "Unknown")" class="username">@((User?.Identity?.Name) ?? "Unknown")</a>
+            <a href="/Users/@((User?.Identity?.Name) ?? "Unknown")"><img src="~/Pictures/defaultUser.png" alt="default-pickture" class="user-picture nav-displayed-picture"></a>
+        </div>
+    </header>
+    }
+
+    @RenderBody()
+    
+    <script src="~/Scripts/Input-Placeholder-Hider.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
