@@ -12,7 +12,7 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
         {
             var principal = context.Principal;
 
-            if (principal?.Identity == null)
+            if (principal?.Identity?.IsAuthenticated != true)
             {
                 context.RejectPrincipal();
                 return;
@@ -51,6 +51,7 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
         {
             if (DateTimeOffset.TryParse(lastValidatedContext, out var lastValidated))
             {
+                if (lastValidated > DateTimeOffset.UtcNow) return false;
                 if (DateTimeOffset.UtcNow - lastValidated < maxTime) return true;
             }
 

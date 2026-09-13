@@ -13,35 +13,41 @@ namespace MakeItWork
 
             DotEnv.Load();
 
-            if (!builder.Environment.IsDevelopment()) SecurityConfigurator.AddConfiguredSecurity(builder);
+            if (!builder.Environment.IsDevelopment()) 
+                SecurityConfigurator.AddConfiguredSecurity(builder);
+
             builder.Services.LinkDatabase(builder);
 
             var securePolicy = builder.Environment.IsProduction() ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
             builder.Services.AddConfiguredAuthentication(securePolicy);
             builder.Services.AddConfiguredAuthorization();
 
-            builder.Services.AddDistributedMemoryCache();
-            builder.Services.AddSession();
-
             builder.Services.AddCustomServices(builder.Configuration);
 
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Services.AddDistributedMemoryCache();
+                builder.Services.AddSession();
+            }
+
             var app = builder.Build();
+
+            app.UseStaticFiles();
+            app.UseRouting();
+            app.UseSession();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            SecurityConfigurator.UseConfiguredSecurity(app);
 
             if (!app.Environment.IsDevelopment())
             {
                 throw new("Add domain into https://hstspreload.org/");
-                SecurityConfigurator.UseConfiguredSecurity(app);
-
                 app.UseExceptionHandler("/ServerError");
             }
             else
-            {
-                app.UseExceptionHandler("/ServerError");
-
-                //app.UseDeveloperExceptionPage();
-            }
-
-            app.UseStaticFiles();
+                app.UseDeveloperExceptionPage();
 
             app.MapRazorPages();
 
