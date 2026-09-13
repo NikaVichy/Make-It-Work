@@ -1,5 +1,4 @@
 ﻿using MakeItWork.Services.ModelControllers.UserAuthController;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 
@@ -7,7 +6,6 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
 {
     public static class PrincipleValidation
     {
-
         private const string LastValidatedClaimType = "last-validated";
         private const string UserStampClaimType = "user-stamp";
         public static async Task ValidatePrincipal(CookieValidatePrincipalContext context)
@@ -21,7 +19,7 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
             }
 
             var lastValidatedClaim = principal.FindFirstValue(LastValidatedClaimType);
-            if (IsValidByTime(lastValidatedClaim, TimeSpan.FromMinutes(5))) return;
+            if (IsValidByTime(lastValidatedClaim, TimeSpan.FromMinutes(2))) return;
 
             var userAuthController = context.HttpContext.RequestServices.GetService<IUserAuthController>();
             if (userAuthController == null)
@@ -36,13 +34,6 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
                 context.RejectPrincipal();
                 return;
             }
-
-            if (!await userAuthController.CheckIfAnyPresentAsync(userId, context.HttpContext.RequestAborted)) {
-                context.RejectPrincipal();
-                return;
-            }
-
-            if (IsValidByTime(lastValidatedClaim, TimeSpan.FromMinutes(30))) return;
 
             if (!await IsValidStamp(principal, userId, userAuthController, context.HttpContext.RequestAborted))
             {
@@ -75,12 +66,7 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
             var stampInClaim = principal.FindFirst(UserStampClaimType)?.Value;
             if (string.IsNullOrWhiteSpace(stampInClaim)) return false;
 
-            var userAuthModel = await userAuthController.TryGetUserAuthModelAsync(userId, ct);
-            if (userAuthModel == null) return false;
-
-            if (stampInClaim != userAuthModel.SecurityStamp) return false;
-
-            return true;
+            return await userAuthController.TryValidateUserStampAsync(userId, stampInClaim, ct);
         }
 
         private static ClaimsPrincipal GetNewPrincipal(ClaimsPrincipal oldPrincipal)

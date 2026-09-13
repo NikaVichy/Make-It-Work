@@ -6,6 +6,7 @@ namespace MakeItWork.Services.ModelControllers.UserAuthController
     {
         Task<bool> CheckIfAnyPresentAsync(int id, CancellationToken ct = default);
         Task<UserAuthModel?> TryGetUserAuthModelAsync(int id, CancellationToken ct = default);
+        Task<bool> TryValidateUserStampAsync(int id, string userStamp, CancellationToken ct = default);
         Task<UserAuthModel?> CreateUserAuthModelAsync(
             UserAuthModel userAuthModel, 
             bool saveImmediatelly, 

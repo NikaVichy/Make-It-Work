@@ -1,6 +1,8 @@
 ﻿using MakeItWork.ApplicationDbContext;
 using MakeItWork.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MakeItWork.Services.ModelControllers.UserAuthController
 {
@@ -18,6 +20,20 @@ namespace MakeItWork.Services.ModelControllers.UserAuthController
         public async Task<UserAuthModel?> TryGetUserAuthModelAsync(int id, CancellationToken ct = default)
         {
             return await _dbSet.FirstOrDefaultAsync(u => u.id == id, ct); 
+        }
+        public async Task<bool> TryValidateUserStampAsync(int id, string userStamp, CancellationToken ct = default)
+        {
+            var secStampObj = await _dbSet
+                .Where(u => u.id == id)
+                .Select(u => new { u.SecurityStamp })
+                .FirstOrDefaultAsync(ct);
+
+            if (secStampObj == null) return false;
+            return CryptographicOperations
+                .FixedTimeEquals(
+                    Encoding.UTF8.GetBytes(userStamp),
+                    Encoding.UTF8.GetBytes(secStampObj.SecurityStamp));
+
         }
         public async Task<bool> CheckIfAnyPresentAsync(int id, CancellationToken ct = default)
         { 
