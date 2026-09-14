@@ -1,7 +1,7 @@
 ﻿using MakeItWork.ApplicationDbContext;
 using MakeItWork.Models;
-using Microsoft.EntityFrameworkCore;
 using MakeItWork.Services.ModelControllers.BaseModelController;
+using Microsoft.EntityFrameworkCore;
 
 namespace MakeItWork.Services.ModelControllers.UserController
 {
@@ -10,20 +10,29 @@ namespace MakeItWork.Services.ModelControllers.UserController
         public UserControllerService(ApplicationDb applicationDb) : base(applicationDb) { }
 
         new public async Task<UserModel?> CreateModelAsync(
-            UserModel model, 
-            bool saveImmediatelly=true, 
+            UserModel model,
+            bool saveImmediatelly = true,
             CancellationToken ct = default)
         {
-            var dbUserModel = await GetUserModelByUsernameAsync(model.username, ct);
-            if (dbUserModel != null) return null;
+            bool anyExists = await _GetUserByUsername(model.username).AnyAsync(ct);
+            if (anyExists) return null;
 
             return await base.CreateModelAsync(model, saveImmediatelly, ct);
         }
 
-        public async Task<UserModel?> GetUserModelByUsernameAsync(string? username, CancellationToken ct = default)
+        private IQueryable<UserModel> _GetUserByUsername(string username)
         {
-            if (string.IsNullOrWhiteSpace(username)) return null;
-            return await _dbSet.FirstOrDefaultAsync(u => u.username == username, ct); // TODO: replace with .where().select();
+            return _dbSet
+                .Where(u => u.username == username);
+
+        }
+
+        /// <returns>Returns uId or 0 if user is not found.</returns>
+        public async Task<int> GetUserIdByUsernameAsync(string username, CancellationToken ct = default)
+        {
+            return await _GetUserByUsername(username)
+                .Select(u => u.id)
+                .FirstOrDefaultAsync(ct);
         }
     }
 }

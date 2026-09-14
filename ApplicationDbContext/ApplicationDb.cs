@@ -50,6 +50,10 @@ namespace MakeItWork.ApplicationDbContext
                 .WithOne(t => t.taskProject)
                 .HasForeignKey(t => t.taskProjectId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserModel>()
+                .HasIndex(u => u.username)
+                .IsUnique();
         }
     }
 }

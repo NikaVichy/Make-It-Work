@@ -1,25 +1,25 @@
 ﻿using MakeItWork.ApplicationDbContext;
 using MakeItWork.Models;
+using MakeItWork.Services.SecurityServices.PasswordHasher;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace MakeItWork.Services.ModelControllers.UserAuthController
 {
-    public class UserAuthControllerService : IUserAuthController
+    public sealed class UserAuthControllerService : IUserAuthController
     {
         private readonly ApplicationDb _applicationDb = null!; 
         private readonly DbSet<UserAuthModel> _dbSet = null!;
+        private readonly IPasswordHasherService _passwordHasherService = null!;
 
-        public UserAuthControllerService(ApplicationDb applicationDb) 
+        public UserAuthControllerService(ApplicationDb applicationDb,
+            IPasswordHasherService passwordHasherService) 
         { 
             _applicationDb = applicationDb;
-            _dbSet = applicationDb.userAuth; 
-        }
+            _dbSet = applicationDb.userAuth;
 
-        public async Task<UserAuthModel?> TryGetUserAuthModelAsync(int id, CancellationToken ct = default)
-        {
-            return await _dbSet.FirstOrDefaultAsync(u => u.id == id, ct); 
+            _passwordHasherService = passwordHasherService;
         }
         public async Task<bool> TryValidateUserStampAsync(int id, string userStamp, CancellationToken ct = default)
         {
@@ -33,7 +33,6 @@ namespace MakeItWork.Services.ModelControllers.UserAuthController
                 .FixedTimeEquals(
                     Encoding.UTF8.GetBytes(userStamp),
                     Encoding.UTF8.GetBytes(secStampObj.SecurityStamp));
-
         }
         public async Task<bool> CheckIfAnyPresentAsync(int id, CancellationToken ct = default)
         { 
@@ -51,18 +50,98 @@ namespace MakeItWork.Services.ModelControllers.UserAuthController
 
             return userAuthModel;
         }
-        public async Task<UserAuthModel?> UpdateUserAuthModelAsync(
-            UserAuthModel userAuthModel, 
+
+        public async Task<bool> IsUserAuthenticatedAsync(
+            int userId, 
+            char[] password,
             CancellationToken ct = default)
         {
-            var dbUserAuth = await TryGetUserAuthModelAsync(userAuthModel.id, ct);
+            try
+            {
+                var dbUserAuthModel = await _dbSet
+                    .Where(u => u.id == userId)
+                    .FirstOrDefaultAsync(ct);
 
-            if (dbUserAuth == null) return null;
+                if (dbUserAuthModel == null)
+                {
+                    Array.Clear(password);
+                    return false;
+                }
 
-            dbUserAuth.UpdateModel(userAuthModel);
-            await _applicationDb.SaveChangesAsync(ct);
+                if (IsLocked(dbUserAuthModel))
+                {
+                    Array.Clear(password);
+                    return false;
+                }
 
-            return dbUserAuth;
+                var isAuthenticated = await _passwordHasherService.VerifyPasswordAsync(
+                    password, 
+                    dbUserAuthModel.hashedPassword);
+                Array.Clear(password);
+
+                if (isAuthenticated)
+                {
+                    if(dbUserAuthModel.authAttempts != 0) await ClearAuthAttempts(userId, ct);
+                    return true;
+                }
+
+                await AddLastAuthAttemt(
+                    userId, 
+                    ++dbUserAuthModel.authAttempts, 
+                    DateTime.UtcNow, 
+                    ct);
+                return false;
+
+            }
+            catch
+            {
+                Array.Clear(password);
+                return false;
+            }
+        }
+
+        public async Task<string> TryGetSecurityStampAsync(int userId, CancellationToken ct = default)
+        {
+            return await _dbSet
+                .Where(u => u.id == userId)
+                .Select(m => m.SecurityStamp)
+                .FirstOrDefaultAsync(ct) ?? "";
+        }
+        private static bool IsLocked(UserAuthModel authModel)
+        {
+            if (authModel.authAttempts < 3) return false;
+
+            int addedHours = authModel.authAttempts / 3;
+            if (DateTime.Compare(authModel.lockedSince.AddHours(addedHours), DateTime.UtcNow) > 0)
+                return true;
+
+            return false;
+        }
+
+        private async Task ClearAuthAttempts(
+            int userId, 
+            CancellationToken ct = default)
+        {
+            await _dbSet
+                .Where(u => u.id == userId)
+                .ExecuteUpdateAsync(m => m
+                    .SetProperty(u => u.authAttempts, 0));
+        }
+
+        private async Task AddLastAuthAttemt(
+            int userId,
+            int authAttempt,
+            DateTime lockedSince,
+            CancellationToken ct = default)
+        {
+            await _dbSet
+                .Where(u => u.id == userId)
+                .ExecuteUpdateAsync(m => m
+                    .SetProperty(u => u.authAttempts, authAttempt)
+                    .SetProperty(u => u.lockedSince, lockedSince));
+
+            // TODO: Rework database so it won't be confusing
+            // Should be lastLoggedIn not lockedSince
         }
     }
 }

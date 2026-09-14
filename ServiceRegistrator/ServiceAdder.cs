@@ -1,4 +1,5 @@
 ﻿using MakeItWork.ServiceOptions;
+using MakeItWork.Services.ModelControllers.ProjectController;
 using MakeItWork.Services.ModelControllers.TaskControllerService;
 using MakeItWork.Services.ModelControllers.UserAuthController;
 using MakeItWork.Services.ModelControllers.UserController;
@@ -6,12 +7,8 @@ using MakeItWork.Services.SecurityServices.Authenticator;
 using MakeItWork.Services.SecurityServices.Authorizer;
 using MakeItWork.Services.SecurityServices.PasswordHasher;
 using MakeItWork.Services.SecurityServices.PrincipleValidator;
-using MakeItWork.Services.SecurityServices.Totp.TotpAuthenticator;
-using MakeItWork.Services.SecurityServices.Totp.TotpGenerator;
-using MakeItWork.Services.SecurityServices.Totp.TotpEncryptor;
 using MakeItWork.Services.UserRegistration;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using MakeItWork.Services.ModelControllers.ProjectController;
 
 namespace MakeItWork.ServiceRegistrator
 {
@@ -24,12 +21,8 @@ namespace MakeItWork.ServiceRegistrator
             if (string.IsNullOrWhiteSpace(key))
                 throw new InvalidOperationException("Environment variable TOTP_ENCRYPTION_MASTER is missing");
 
-            var totpSecretServce = new TotpEncryptorService(key);
-            services.AddSingleton(totpSecretServce);
-
             services.AddScoped<IAuthorizerService, AuthorizerService>();
 
-            services.AddTransient<ITotpGenerator, TotpGeneratorService>();
 
             services.Configure<PasswordHasherOptions>(configuration.GetSection(nameof(PasswordHasherOptions)));
             services.AddTransient<IPasswordHasherService, PasswordHasherService>();
@@ -45,7 +38,6 @@ namespace MakeItWork.ServiceRegistrator
 
             services.AddScoped<IUserRegistrationService, UserRegistrationService>();
             services.AddScoped<IAuthenticatorService, AuthenticatorService>();
-            services.AddScoped<ITotpAuthenticatorService, TotpAuthenticatorService>();
 
             return services;
         }

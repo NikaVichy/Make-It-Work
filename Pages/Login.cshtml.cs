@@ -40,25 +40,16 @@ namespace MakeItWork.Pages
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password)) return BadRequest("Username and/or password are invalid");
 
             char[] charedPassword = Password.ToArray();
-            Password = null;
+            Password = "";
 
             try
             {
-                var dbUserAuthModel = await _authenticationService.TryValidateAuthModelAsync(Username, charedPassword);
+                var isAuthenticated = await _authenticationService.TryValidateAuthModelAsync(Username, charedPassword);
                 Array.Clear(charedPassword);
 
-                if (dbUserAuthModel == null) return new UnauthorizedResult();
+                if (!isAuthenticated) return new UnauthorizedResult();
 
-                if (dbUserAuthModel.TotpEnabled)
-                {
-                    HttpContext.Items["preauth-id"] = dbUserAuthModel.id;
-                    HttpContext.Items["preauth-username"] = Username;
-                    HttpContext.Items["auth-attempt"] = DateTime.UtcNow;
-
-                    return RedirectToPage("/Login-Totp");
-                }
-
-                await _authorizationService.SignInAsync(HttpContext, dbUserAuthModel.id, Username, dbUserAuthModel);
+                await _authorizationService.SignInAsync(HttpContext, Username);
                 return Redirect("/");
             }
             catch

@@ -5,6 +5,6 @@ namespace MakeItWork.Services.ModelControllers.UserController
 {
     public interface IUserController : IBaseModelController<UserModel>
     {
-        Task<UserModel?> GetUserModelByUsernameAsync(string? username, CancellationToken ct = default);
+        Task<int> GetUserIdByUsernameAsync(string username, CancellationToken ct = default);
     }
 }
