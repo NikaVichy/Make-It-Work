@@ -1,11 +1,9 @@
-﻿using MakeItWork.Models;
-
-namespace MakeItWork.Services.SecurityServices.Authorizer
+﻿namespace MakeItWork.Services.SecurityServices.Authorizer
 {
     public interface IAuthorizerService
     {
-        public Task SignInAsync(HttpContext context, int id, string username);
-        public Task SignInAsync(HttpContext context, int id, string username, UserAuthModel userAuthModel);
+        public Task SignInAsync(HttpContext context, string username, CancellationToken ct = default);
+        public Task SignInAsync(HttpContext context, int userId, string username, string securityStamp);
         public Task SignOutAsync(HttpContext context);
     }
 }

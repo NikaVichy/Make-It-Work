@@ -48,8 +48,8 @@ namespace MakeItWork.Pages
                 var dbUserModel = await _userRegistrationService.RegisterUserAsync(Username, charedPass, HttpContext.RequestAborted);
                 if (dbUserModel == null) return Unauthorized();
 
-
-                await _authenticatorService.SignInAsync(HttpContext, dbUserModel.id, dbUserModel.username);
+                await _authenticatorService.SignInAsync(HttpContext, dbUserModel.username);
+                // TODO: REWORK
                 return Redirect("/");
             }
             catch
