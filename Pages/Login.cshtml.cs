@@ -2,6 +2,7 @@ using MakeItWork.Services.SecurityServices.Authenticator;
 using MakeItWork.Services.SecurityServices.Authorizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace MakeItWork.Pages
 {
@@ -30,6 +31,7 @@ namespace MakeItWork.Pages
             return Page();
         }
 
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> OnPostAsync()
         {
             if (User?.Identity?.IsAuthenticated == true) { return Redirect("/"); }

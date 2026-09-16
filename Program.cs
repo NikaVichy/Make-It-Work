@@ -21,6 +21,7 @@ namespace MakeItWork
             var securePolicy = builder.Environment.IsProduction() ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
             builder.Services.AddConfiguredAuthentication(securePolicy);
             builder.Services.AddConfiguredAuthorization();
+            builder.Services.AddConfiguredRateLimiter();
 
             builder.Services.AddCustomServices(builder.Configuration);
 
@@ -34,12 +35,6 @@ namespace MakeItWork
 
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseSession();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            SecurityConfigurator.UseConfiguredSecurity(app);
 
             if (!app.Environment.IsDevelopment())
             {
@@ -48,6 +43,13 @@ namespace MakeItWork
             }
             else
                 app.UseDeveloperExceptionPage();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseRateLimiter();
+
+            SecurityConfigurator.UseConfiguredSecurity(app);
 
             app.MapRazorPages();
 

@@ -9,6 +9,9 @@ using MakeItWork.Services.SecurityServices.PasswordHasher;
 using MakeItWork.Services.SecurityServices.PrincipleValidator;
 using MakeItWork.Services.UserRegistration;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 
 namespace MakeItWork.ServiceRegistrator
 {
@@ -63,6 +66,68 @@ namespace MakeItWork.ServiceRegistrator
         public static IServiceCollection AddConfiguredAuthorization(this IServiceCollection services)
         {
             services.AddAuthorization();
+            return services;
+        }
+
+        public static IServiceCollection AddConfiguredRateLimiter(this IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.OnRejected = async (context, ct) =>
+                {
+                    context.HttpContext.Response.Headers["Retry-After"] = "60";
+
+                    await context.HttpContext.Response.WriteAsync(
+                        "Too many requests. Try again later.", ct);
+                };
+
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context => {
+                    if (context.User.Identity?.IsAuthenticated == true)
+                    {
+                        var key = context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "null";
+                        return RateLimitPartition.GetTokenBucketLimiter(
+                            partitionKey: $"token:{key}",
+                            factory: _ => new TokenBucketRateLimiterOptions
+                            {
+                                TokenLimit = 50,
+                                TokensPerPeriod = 2,
+                                ReplenishmentPeriod = TimeSpan.FromSeconds(1),
+                                AutoReplenishment = true,
+                                QueueLimit = 0
+                            });
+                    }
+                    else
+                    {
+                        var key = context.Connection.RemoteIpAddress?.ToString() ?? "null";
+
+                        return RateLimitPartition.GetFixedWindowLimiter(
+                            partitionKey: $"ip:{key}",
+                            factory: _ => new FixedWindowRateLimiterOptions
+                            {
+                                PermitLimit = 5,
+                                Window = TimeSpan.FromMinutes(1),
+                                AutoReplenishment = true
+                            });
+                    }
+                });
+
+                options.AddPolicy<string>("auth", context =>
+                {
+                    var ip = context.Connection.RemoteIpAddress?.ToString() ?? "null";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: $"auth:{ip}",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(5),
+                            AutoReplenishment = true,
+                            QueueLimit = 0
+                        });
+                });
+            });
+
             return services;
         }
     }
