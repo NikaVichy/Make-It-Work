@@ -1,20 +1,20 @@
-﻿using MakeItWork.Services.ModelControllers.UserAuthController;
-using MakeItWork.Services.ModelControllers.UserController;
+﻿using MakeItWork.Services.ModelServices.UserAuthRepository;
+using MakeItWork.Services.ModelServices.UserRepository;
 using MakeItWork.Services.SecurityServices.PasswordHasher;
 
 namespace MakeItWork.Services.SecurityServices.Authenticator
 {
     public class AuthenticatorService : IAuthenticatorService
     {
-        private readonly IUserController _userController = null!;
-        private readonly IUserAuthController _userAuthController = null!;
+        private readonly IUserRepository _userRepository = null!;
+        private readonly IUserAuthRepository _userAuthRepository = null!;
 
-        public AuthenticatorService(IUserController userController,
-            IUserAuthController userAuthController,
+        public AuthenticatorService(IUserRepository userRepository,
+            IUserAuthRepository userAuthRepository,
             IPasswordHasherService passwordHasherService)
         {
-            _userController = userController;
-            _userAuthController = userAuthController;
+            _userRepository = userRepository;
+            _userAuthRepository = userAuthRepository;
         }
 
         public async Task<bool> TryValidateAuthModelAsync(string username, char[] password, CancellationToken ct = default)
@@ -24,14 +24,14 @@ namespace MakeItWork.Services.SecurityServices.Authenticator
 
             try
             {
-                var userId = await _userController.GetUserIdByUsernameAsync(username);
+                var userId = await _userRepository.GetUserIdByUsernameAsync(username);
                 if (userId == 0)
                 {
                     Array.Clear(password);
                     return false;
                 }
 
-                bool isAuthenticated = await _userAuthController
+                bool isAuthenticated = await _userAuthRepository
                     .IsUserAuthenticatedAsync(userId, password, ct);
 
                 return isAuthenticated;

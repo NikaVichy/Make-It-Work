@@ -1,13 +1,13 @@
 ﻿using MakeItWork.ApplicationDbContext;
 using MakeItWork.Models;
-using MakeItWork.Services.ModelControllers.BaseModelController;
+using MakeItWork.Services.ModelServices.BaseRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace MakeItWork.Services.ModelControllers.UserController
+namespace MakeItWork.Services.ModelServices.UserRepository
 {
-    public class UserControllerService : BaseModelController<UserModel>, IUserController
+    public class UserRepository : BaseRepository<UserModel>, IUserRepository
     {
-        public UserControllerService(ApplicationDb applicationDb) : base(applicationDb) { }
+        public UserRepository(ApplicationDb applicationDb) : base(applicationDb) { }
 
         new public async Task<UserModel?> CreateModelAsync(
             UserModel model,

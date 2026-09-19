@@ -1,14 +1,14 @@
 ﻿using MakeItWork.ApplicationDbContext;
 using MakeItWork.DTOModels;
 using MakeItWork.Models;
-using MakeItWork.Services.ModelControllers.BaseModelController;
+using MakeItWork.Services.ModelServices.BaseRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace MakeItWork.Services.ModelControllers.ProjectController
+namespace MakeItWork.Services.ModelServices.ProjectRepository
 {
-    public class ProjectControllerService : BaseModelController<ProjectModel>, IProjectController
+    public class ProjectRepository : BaseRepository<ProjectModel>, IProjectRepository
     {
-        public ProjectControllerService(ApplicationDb applicationDb) : base(applicationDb) { }
+        public ProjectRepository(ApplicationDb applicationDb) : base(applicationDb) { }
         public async Task<List<ProjectDTO>> GetProjectsForUserAsync(int userId, CancellationToken ct)
         {
             return await _dbSet.AsNoTracking()
@@ -19,20 +19,20 @@ namespace MakeItWork.Services.ModelControllers.ProjectController
                     name = p.projectName
                 })
                 .ToListAsync(ct);
-                
+
         }
         public async Task<ProjectModel?> GetProjectByIdAsync(int projectId, int userId, CancellationToken ct)
         {
             return await _dbSet.Where(p => p.id == projectId && (p.ownerId == userId || p.users.Any(u => u.id == userId)))
                 .FirstOrDefaultAsync(ct);
         }
-        public async Task TransferOwnershipAsync(int projectId, int curOwner, int newOwner, CancellationToken ct) 
+        public async Task TransferOwnershipAsync(int projectId, int curOwner, int newOwner, CancellationToken ct)
         {
             if (curOwner == newOwner) return;
 
             var userInProject = await _dbSet.Where(p => p.id == projectId)
                 .SelectMany(p => p.users)
-                .AnyAsync(u => u.id == newOwner, ct); 
+                .AnyAsync(u => u.id == newOwner, ct);
 
             if (!userInProject) return;
 
@@ -59,10 +59,10 @@ namespace MakeItWork.Services.ModelControllers.ProjectController
             var project = await _dbSet.Where(p => p.id == projectId && p.ownerId == ownerId)
                 .Include(p => p.users)
                 .FirstOrDefaultAsync(ct);
-            if(project == null) return;
+            if (project == null) return;
 
             var userModel = project.users.FirstOrDefault(u => u.id == userId);
-            if(userModel == null) return;
+            if (userModel == null) return;
 
             project.users.Remove(userModel);
             await _applicationDb.SaveChangesAsync(ct);

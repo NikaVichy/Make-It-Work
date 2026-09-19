@@ -1,5 +1,5 @@
-﻿using MakeItWork.Services.ModelControllers.UserAuthController;
-using MakeItWork.Services.ModelControllers.UserController;
+﻿using MakeItWork.Services.ModelServices.UserAuthRepository;
+using MakeItWork.Services.ModelServices.UserRepository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
@@ -10,13 +10,13 @@ namespace MakeItWork.Services.SecurityServices.Authorizer
     {
         public async Task SignInAsync(HttpContext context, string username, CancellationToken ct = default)
         {
-            IUserAuthController userAuthController = context.RequestServices.GetRequiredService<IUserAuthController>();
-            IUserController userController = context.RequestServices.GetRequiredService<IUserController>();
+            IUserAuthRepository userAuthRepository = context.RequestServices.GetRequiredService<IUserAuthRepository>();
+            IUserRepository userRepository = context.RequestServices.GetRequiredService<IUserRepository>();
 
-            var userId = await userController.GetUserIdByUsernameAsync(username);
+            var userId = await userRepository.GetUserIdByUsernameAsync(username);
             if (userId == 0) return;
 
-            var securityStamp = await userAuthController.TryGetSecurityStampAsync(userId, ct);
+            var securityStamp = await userAuthRepository.TryGetSecurityStampAsync(userId, ct);
             if (String.IsNullOrWhiteSpace(securityStamp)) return;
 
             await SignInAsync(context, userId, username, securityStamp);
