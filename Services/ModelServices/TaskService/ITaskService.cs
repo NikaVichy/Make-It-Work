@@ -1,4 +1,6 @@
-﻿namespace MakeItWork.Services.ModelServices.TaskService
+﻿using MakeItWork.DTOModels;
+
+namespace MakeItWork.Services.ModelServices.TaskService
 {
     public interface ITaskService
     {

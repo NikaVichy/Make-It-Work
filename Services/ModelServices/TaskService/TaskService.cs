@@ -1,22 +1,23 @@
-﻿using MakeItWork.Models;
-using MakeItWork.Services.ModelServices.BaseRepository;
+﻿using MakeItWork.DTOModels;
+using MakeItWork.Models;
 using MakeItWork.Services.ModelServices.BaseService;
-using MakeItWork.Services.ModelServices.ProjectService;
+using MakeItWork.Services.ModelServices.ProjectRepository;
 using MakeItWork.Services.ModelServices.TaskRepository;
+using MakeItWork.Services.ModelServices.UnitOfWork;
 
 namespace MakeItWork.Services.ModelServices.TaskService
 {
     public class TaskService : BaseService<TaskModel, ITaskRepository>, ITaskService
     {
-        private readonly IProjectService _projectService = null!;
+        private readonly IProjectRepository _projectRepository = null!;
         private readonly IUnitOfWork _saverUnit = null!;
 
         public TaskService(
             ITaskRepository taskRepository,
-            IProjectService projectService,
+            IProjectRepository projectRepository,
             IUnitOfWork saverUnit) : base(taskRepository)
         {
-            _projectService = projectService;
+            _projectRepository = projectRepository;
             _saverUnit = saverUnit;
         }
 
@@ -30,19 +31,21 @@ namespace MakeItWork.Services.ModelServices.TaskService
             bool saveImmediatelly = true,
             CancellationToken ct = default)
         {
-            if (!await _projectService.UserHasAccessAsync(taskAuthorId, taskProjectId, ct))
-                return;
+            var userIdsWithAccess = (await _projectRepository.GetUserIdsWithAccessAsync(taskProjectId, ct)).ToHashSet();
+
+            if (!userIdsWithAccess.Contains(taskAuthorId)) return;
 
             assignedUsers ??= [];
-            var authorizedIds = await _projectService
-                .UsersHaveAccessAsync(assignedUsers, taskProjectId, ct);
-            
+            var authorizedIds = assignedUsers
+                .Where(u => userIdsWithAccess.Contains(u))
+                .ToList();
 
             var taskModel = new TaskModel
             {
                 taskName = taskName,
                 taskDescription = taskDescription ?? "",
                 taskAuthorId = taskAuthorId,
+                taskProjectId = taskProjectId,
                 dueTo = dueTo
             };
 
@@ -64,9 +67,16 @@ namespace MakeItWork.Services.ModelServices.TaskService
             var dbTaskModel = await _repository.GetForUpdateAsync(taskId, userId, ct);
             if (dbTaskModel == null) return;
 
+            var userIdsWithAccess = (await _projectRepository.GetUserIdsWithAccessAsync(
+                dbTaskModel.taskProjectId,
+                ct))
+                    .ToHashSet();
+
             assignedUsers ??= [];
-            var authorizedIds = await _projectService
-                .UsersHaveAccessAsync(assignedUsers, dbTaskModel.taskProjectId, ct);
+
+            var authorizedIds = assignedUsers
+                .Where(u => userIdsWithAccess.Contains(u))
+                .ToList();
 
             dbTaskModel.taskName = taskName;
             dbTaskModel.taskDescription = taskDescription ?? "";
@@ -83,7 +93,7 @@ namespace MakeItWork.Services.ModelServices.TaskService
             CancellationToken ct = default)
         {
             var dbTaskModel = await _repository.GetForUpdateAsync(taskId, userId, ct);
-            if(dbTaskModel == null) return;
+            if (dbTaskModel == null) return;
 
             dbTaskModel.isCompleted = !dbTaskModel.isCompleted;
             await _saverUnit.SaveChangesAsync(ct);
@@ -96,6 +106,8 @@ namespace MakeItWork.Services.ModelServices.TaskService
         {
             var dbTaskModel = await _repository.GetForUpdateAsync(taskId, userId, ct);
             if (dbTaskModel == null) return;
+
+            if (dbTaskModel.isHidden) return;
 
             dbTaskModel.isHidden = true;
             await _saverUnit.SaveChangesAsync(ct);

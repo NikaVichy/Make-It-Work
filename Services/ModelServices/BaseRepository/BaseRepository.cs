@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MakeItWork.Services.ModelServices.BaseRepository
 {
-    public class BaseRepository<T> : IUnitOfWork, IBaseRepository<T> where T : BaseModel
+    public abstract class BaseRepository<T> : IBaseRepository<T> where T : BaseModel
     {
         private protected readonly ApplicationDb _applicationDb = null!;
         private protected readonly DbSet<T> _dbSet = null!;
@@ -32,10 +32,6 @@ namespace MakeItWork.Services.ModelServices.BaseRepository
             await _applicationDb.SaveChangesAsync(ct);
 
             return dbModel;
-        }
-        public async Task<int> SaveChangesAsync(CancellationToken ct = default)
-        {
-            return await _applicationDb.SaveChangesAsync(ct);
         }
     }
 }

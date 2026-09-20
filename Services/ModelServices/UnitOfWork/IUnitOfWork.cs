@@ -1,4 +1,4 @@
-﻿namespace MakeItWork.Services.ModelServices.BaseRepository
+﻿namespace MakeItWork.Services.ModelServices.UnitOfWork
 {
     public interface IUnitOfWork
     {

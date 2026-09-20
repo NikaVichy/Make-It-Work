@@ -13,6 +13,7 @@ namespace MakeItWork.Services.ModelServices.TaskRepository
         private IQueryable<TaskModel> _GetTasksAccessibleForUser(int userId)
         {
             return _dbSet
+                .Where(t => !t.isHidden)
                 .Where(t => t.taskProject.ownerId == userId || t.taskProject.users.Any(u => u.id == userId));
         }
         private IQueryable<TaskModel> _GetAccessibleTasksForAssignee(int userId)
@@ -44,9 +45,10 @@ namespace MakeItWork.Services.ModelServices.TaskRepository
         public async Task<List<TaskDTO>> GetTasksForUserAsync(int userId, CancellationToken ct = default)
         {
             return await _GetAccessibleTasksForAssignee(userId)
+                .Where(t => !t.isCompleted)
+                .Select(_taskDtoCreation)
                 .OrderBy(t => t.dueTo == null)
                 .ThenBy(t => t.dueTo)
-                .Select(_taskDtoCreation)
                 .ToListAsync(ct);
         }
 

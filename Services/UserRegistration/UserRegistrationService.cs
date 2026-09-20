@@ -41,7 +41,7 @@ namespace MakeItWork.Services.UserRegistration
             {
                 var newUser = new UserModel() { username = username };
 
-                var dbUserModel = await _userRepository.CreateModelAsync(newUser, saveImmediately: false, ct);
+                var dbUserModel = await _userRepository.CreateModelAsync(newUser, saveImmediatelly: false, ct);
                 if (dbUserModel == null) return null; // TODO: Make feedback to user
 
                 var hashedPassword = await _passwordHasher.HashValidatedPasswordAsync(password);
@@ -54,7 +54,7 @@ namespace MakeItWork.Services.UserRegistration
                 await transaction.CommitAsync(ct);
 
                 var newProject = new ProjectModel() { ownerId = dbUserModel.id, projectName = dbUserModel.username + "'s project" };
-                var dbProjectModel = await _projectRepository.CreateModelAsync(newProject, saveImmediately: false, ct: ct);
+                var dbProjectModel = await _projectRepository.CreateModelAsync(newProject, saveImmediatelly: false, ct: ct);
 
                 await _applicationDb.SaveChangesAsync();
 

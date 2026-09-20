@@ -1,15 +1,19 @@
-﻿using MakeItWork.ServiceOptions;
-using MakeItWork.Services.ModelControllers.ProjectController;
-using MakeItWork.Services.ModelControllers.TaskControllerService;
-using MakeItWork.Services.ModelControllers.UserAuthController;
-using MakeItWork.Services.ModelControllers.UserController;
+﻿using MakeItWork.Models;
+using MakeItWork.ServiceOptions;
+using MakeItWork.Services.ModelServices.BaseRepository;
+using MakeItWork.Services.ModelServices.ProjectRepository;
+using MakeItWork.Services.ModelServices.ProjectService;
+using MakeItWork.Services.ModelServices.TaskRepository;
+using MakeItWork.Services.ModelServices.TaskService;
+using MakeItWork.Services.ModelServices.UnitOfWork;
+using MakeItWork.Services.ModelServices.UserAuthRepository;
+using MakeItWork.Services.ModelServices.UserRepository;
 using MakeItWork.Services.SecurityServices.Authenticator;
 using MakeItWork.Services.SecurityServices.Authorizer;
 using MakeItWork.Services.SecurityServices.PasswordHasher;
 using MakeItWork.Services.SecurityServices.PrincipleValidator;
 using MakeItWork.Services.UserRegistration;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 
@@ -34,10 +38,17 @@ namespace MakeItWork.ServiceRegistrator
 
             services.AddRazorPages(options => { });
 
-            services.AddScoped<IProjectController, ProjectControllerService>();
-            services.AddScoped<ITaskController, TaskControllerService>();
-            services.AddScoped<IUserController, UserControllerService>();
-            services.AddScoped<IUserAuthController, UserAuthControllerService>();
+
+            services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserAuthRepository, UserAuthRepository>();
+
+            services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<ITaskService, TaskService>();
+
 
             services.AddScoped<IUserRegistrationService, UserRegistrationService>();
             services.AddScoped<IAuthenticatorService, AuthenticatorService>();
@@ -82,7 +93,8 @@ namespace MakeItWork.ServiceRegistrator
                         "Too many requests. Try again later.", ct);
                 };
 
-                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context => {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                {
                     if (context.User.Identity?.IsAuthenticated == true)
                     {
                         var key = context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "null";
