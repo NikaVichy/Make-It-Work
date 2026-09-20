@@ -48,8 +48,6 @@ namespace MakeItWork.Pages
 
             CancellationToken ct = HttpContext.RequestAborted;
 
-            Console.WriteLine(projectId);
-
             try
             {
                 var taskAuthorId = GetUserId();
@@ -88,20 +86,15 @@ namespace MakeItWork.Pages
         }
         public async Task<IActionResult> OnPostUpdateAsync(
             int taskId,
-<<<<<<< Updated upstream
+
             string taskName,
             string taskDescription,
-=======
-            string? taskName, 
-            string? taskDescription, 
->>>>>>> Stashed changes
             DateTimeOffset? dueTo,
             List<int> assignedUsers)
         {
             var userId = GetUserId();
             if (userId == -1) return Unauthorized();
 
-<<<<<<< Updated upstream
             var ct = HttpContext.RequestAborted;
 
             await _taskService
@@ -113,20 +106,6 @@ namespace MakeItWork.Pages
                     dueTo,
                     assignedUsers,
                     ct);
-=======
-            foreach(var user in assignedUsers)
-            {
-                Console.WriteLine(user);
-            }
-
-            await _taskControllerService.UpdateTaskValues(
-                taskId, 
-                userId, 
-                taskName,
-                taskDescription,
-                dueTo, 
-                HttpContext.RequestAborted);
->>>>>>> Stashed changes
 
             return RedirectToPage();
         }
