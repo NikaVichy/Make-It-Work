@@ -5,17 +5,17 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace MakeItWork.Services.ModelControllers.UserAuthController
+namespace MakeItWork.Services.ModelServices.UserAuthRepository
 {
-    public sealed class UserAuthControllerService : IUserAuthController
+    public sealed class UserAuthRepository : IUserAuthRepository
     {
-        private readonly ApplicationDb _applicationDb = null!; 
+        private readonly ApplicationDb _applicationDb = null!;
         private readonly DbSet<UserAuthModel> _dbSet = null!;
         private readonly IPasswordHasherService _passwordHasherService = null!;
 
-        public UserAuthControllerService(ApplicationDb applicationDb,
-            IPasswordHasherService passwordHasherService) 
-        { 
+        public UserAuthRepository(ApplicationDb applicationDb,
+            IPasswordHasherService passwordHasherService)
+        {
             _applicationDb = applicationDb;
             _dbSet = applicationDb.userAuth;
 
@@ -35,12 +35,12 @@ namespace MakeItWork.Services.ModelControllers.UserAuthController
                     Encoding.UTF8.GetBytes(secStampObj.SecurityStamp));
         }
         public async Task<bool> CheckIfAnyPresentAsync(int id, CancellationToken ct = default)
-        { 
-            return await _dbSet.AnyAsync(u => u.id == id, ct); 
+        {
+            return await _dbSet.AnyAsync(u => u.id == id, ct);
         }
         public async Task<UserAuthModel?> CreateUserAuthModelAsync(
-            UserAuthModel userAuthModel, 
-            bool saveImmediately=false, 
+            UserAuthModel userAuthModel,
+            bool saveImmediately = false,
             CancellationToken ct = default)
         {
             await _dbSet.AddAsync(userAuthModel, ct);
@@ -52,7 +52,7 @@ namespace MakeItWork.Services.ModelControllers.UserAuthController
         }
 
         public async Task<bool> IsUserAuthenticatedAsync(
-            int userId, 
+            int userId,
             char[] password,
             CancellationToken ct = default)
         {
@@ -75,20 +75,20 @@ namespace MakeItWork.Services.ModelControllers.UserAuthController
                 }
 
                 var isAuthenticated = await _passwordHasherService.VerifyPasswordAsync(
-                    password, 
+                    password,
                     dbUserAuthModel.hashedPassword);
                 Array.Clear(password);
 
                 if (isAuthenticated)
                 {
-                    if(dbUserAuthModel.authAttempts != 0) await ClearAuthAttempts(userId, ct);
+                    if (dbUserAuthModel.authAttempts != 0) await ClearAuthAttempts(userId, ct);
                     return true;
                 }
 
                 await AddLastAuthAttemt(
-                    userId, 
-                    ++dbUserAuthModel.authAttempts, 
-                    DateTime.UtcNow, 
+                    userId,
+                    ++dbUserAuthModel.authAttempts,
+                    DateTime.UtcNow,
                     ct);
                 return false;
 
@@ -119,7 +119,7 @@ namespace MakeItWork.Services.ModelControllers.UserAuthController
         }
 
         private async Task ClearAuthAttempts(
-            int userId, 
+            int userId,
             CancellationToken ct = default)
         {
             await _dbSet

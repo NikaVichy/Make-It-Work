@@ -1,4 +1,4 @@
-﻿using MakeItWork.Services.ModelControllers.UserAuthController;
+﻿using MakeItWork.Services.ModelServices.UserAuthRepository;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 
@@ -21,8 +21,8 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
             var lastValidatedClaim = principal.FindFirstValue(LastValidatedClaimType);
             if (IsValidByTime(lastValidatedClaim, TimeSpan.FromMinutes(2))) return;
 
-            var userAuthController = context.HttpContext.RequestServices.GetService<IUserAuthController>();
-            if (userAuthController == null)
+            var userAuthRepository = context.HttpContext.RequestServices.GetService<IUserAuthRepository>();
+            if (userAuthRepository == null)
             {
                 context.RejectPrincipal();
                 return;
@@ -35,7 +35,7 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
                 return;
             }
 
-            if (!await IsValidStamp(principal, userId, userAuthController, context.HttpContext.RequestAborted))
+            if (!await IsValidStamp(principal, userId, userAuthRepository, context.HttpContext.RequestAborted))
             {
                 context.RejectPrincipal();
                 return;
@@ -61,13 +61,13 @@ namespace MakeItWork.Services.SecurityServices.PrincipleValidator
         private static async Task<bool> IsValidStamp(
             ClaimsPrincipal principal,
             int userId,
-            IUserAuthController userAuthController,
+            IUserAuthRepository userAuthRepository,
             CancellationToken ct = default)
         {
             var stampInClaim = principal.FindFirst(UserStampClaimType)?.Value;
             if (string.IsNullOrWhiteSpace(stampInClaim)) return false;
 
-            return await userAuthController.TryValidateUserStampAsync(userId, stampInClaim, ct);
+            return await userAuthRepository.TryValidateUserStampAsync(userId, stampInClaim, ct);
         }
 
         private static ClaimsPrincipal GetNewPrincipal(ClaimsPrincipal oldPrincipal)
