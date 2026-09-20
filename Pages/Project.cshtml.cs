@@ -1,5 +1,5 @@
 using MakeItWork.DTOModels;
-using MakeItWork.Services.ModelControllers.ProjectController;
+using MakeItWork.Services.ModelServices.ProjectRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
@@ -9,19 +9,19 @@ namespace MakeItWork.Pages
     [Authorize]
     public class ProjectModel : PageModel
     {
-        private readonly IProjectController _projectController;
+        private readonly IProjectRepository _projectRepository;
 
         public List<ProjectDTO> projectModels = [];
 
-        public ProjectModel(IProjectController projectController)
+        public ProjectModel(IProjectRepository projectRepository)
         {
-            _projectController = projectController;
+            _projectRepository = projectRepository;
         }
 
         public async Task OnGetAsync()
         {
             var userId = GetUserId();
-            projectModels = await _projectController.GetProjectsForUserAsync(userId, HttpContext.RequestAborted);
+            projectModels = await _projectRepository.GetProjectsForUserAsync(userId, HttpContext.RequestAborted);
         }
         private int GetUserId()
         {

@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Services\ModelControllers\UserAuthControlle\**" />
-    <Content Remove="Services\ModelControllers\UserAuthControlle\**" />
-    <EmbeddedResource Remove="Services\ModelControllers\UserAuthControlle\**" />
-    <None Remove="Services\ModelControllers\UserAuthControlle\**" />
+    <Compile Remove="Services\ModelServices\UserAuthControlle\**" />
+    <Content Remove="Services\ModelServices\UserAuthControlle\**" />
+    <EmbeddedResource Remove="Services\ModelServices\UserAuthControlle\**" />
+    <None Remove="Services\ModelServices\UserAuthControlle\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,7 @@
 using MakeItWork.DTOModels;
-using MakeItWork.Services.ModelControllers.ProjectController;
-using MakeItWork.Services.ModelControllers.TaskControllerService;
+using MakeItWork.Services.ModelServices.ProjectRepository;
+using MakeItWork.Services.ModelServices.TaskRepository;
+using MakeItWork.Services.ModelServices.TaskService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,11 +14,13 @@ namespace MakeItWork.Pages
     {
         public List<TaskDTO> taskList = [];
 
-        private readonly ITaskController _taskControllerService;
+        private readonly ITaskRepository _taskRepository;
+        private readonly ITaskService _taskService;
 
-        public IndexModel(ITaskController taskControllerService)
+        public IndexModel(ITaskRepository taskRepository, ITaskService taskService)
         {
-            _taskControllerService = taskControllerService;
+            _taskRepository = taskRepository;
+            _taskService = taskService;
         }
 
         public async Task<IActionResult> OnGet()
@@ -25,19 +28,19 @@ namespace MakeItWork.Pages
             var userId = GetUserId();
             if (userId == -1) return Unauthorized();
 
-            taskList = await _taskControllerService.GetTasksForUserAsync(userId, HttpContext.RequestAborted);
+            taskList = await _taskRepository.GetTasksForUserAsync(userId, HttpContext.RequestAborted);
 
             return Page();
         }
 
         public async Task<IActionResult> OnPostCreateAsync(
-            string taskName, 
-            string? taskDescription,
+            string taskName,
+            string taskDescription,
             int projectId,
             List<int> assignedUsers,
             DateTimeOffset? dueTo)
         {
-            if (string.IsNullOrWhiteSpace(taskName)) 
+            if (string.IsNullOrWhiteSpace(taskName))
                 return RedirectToPage();
 
             var userId = GetUserId();
@@ -45,16 +48,21 @@ namespace MakeItWork.Pages
 
             CancellationToken ct = HttpContext.RequestAborted;
 
+            Console.WriteLine(projectId);
+
             try
             {
-                var task = await _taskControllerService.CreateModelAsync(
-                    taskName: taskName,
-                    taskDescription: taskDescription,
-                    taskAuthorId: userId,
-                    taskProjectId: projectId,
-                    dueTo: dueTo,
-                    assignedUsers: assignedUsers,
-                    ct: ct);
+                var taskAuthorId = GetUserId();
+                await _taskService
+                    .TryCreateTaskAsync(
+                        taskName,
+                        taskDescription,
+                        taskAuthorId,
+                        projectId,
+                        dueTo,
+                        assignedUsers,
+                        saveImmediatelly: false,
+                        ct);
             }
             catch
             {
@@ -69,17 +77,47 @@ namespace MakeItWork.Pages
             var userId = GetUserId();
             if (userId == -1) return Unauthorized();
 
-            await _taskControllerService.ChangeTaskCompletionAsync(
-                taskId, 
-                userId, 
-                HttpContext.RequestAborted);
+            CancellationToken ct = HttpContext.RequestAborted;
+
+            await _taskService.ChangeTaskCompletionAsync(
+                taskId,
+                userId,
+                ct);
 
             return RedirectToPage();
         }
-        public async Task<IActionResult> OnPostUpdateAsync(int taskId, string? taskName, string? taskDescription, DateTimeOffset? dueTo)
+        public async Task<IActionResult> OnPostUpdateAsync(
+            int taskId,
+<<<<<<< Updated upstream
+            string taskName,
+            string taskDescription,
+=======
+            string? taskName, 
+            string? taskDescription, 
+>>>>>>> Stashed changes
+            DateTimeOffset? dueTo,
+            List<int> assignedUsers)
         {
             var userId = GetUserId();
             if (userId == -1) return Unauthorized();
+
+<<<<<<< Updated upstream
+            var ct = HttpContext.RequestAborted;
+
+            await _taskService
+                .UpdateTaskAsync(
+                    taskId,
+                    taskName,
+                    taskDescription,
+                    userId,
+                    dueTo,
+                    assignedUsers,
+                    ct);
+=======
+            foreach(var user in assignedUsers)
+            {
+                Console.WriteLine(user);
+            }
 
             await _taskControllerService.UpdateTaskValues(
                 taskId, 
@@ -88,6 +126,7 @@ namespace MakeItWork.Pages
                 taskDescription,
                 dueTo, 
                 HttpContext.RequestAborted);
+>>>>>>> Stashed changes
 
             return RedirectToPage();
         }
@@ -96,10 +135,12 @@ namespace MakeItWork.Pages
             var userId = GetUserId();
             if (userId == -1) return Unauthorized();
 
-            await _taskControllerService.ChangeTaskVisibilityAsync(
-                taskId, 
-                userId, 
-                HttpContext.RequestAborted);
+            CancellationToken ct = HttpContext.RequestAborted;
+
+            await _taskService.ChangeTaskVisibilityAsync(
+                taskId,
+                userId,
+                ct);
 
             return RedirectToPage();
         }
@@ -109,20 +150,23 @@ namespace MakeItWork.Pages
             var userId = GetUserId();
             if (userId == -1) return Unauthorized();
 
-            var dtoModel = await _taskControllerService.GetDetailedTaskByIdAsync(
-                taskId, 
-                userId, 
+            Console.WriteLine(userId);
+
+            var dtoModel = await _taskRepository.GetDetailedTaskByIdAsync(
+                taskId,
+                userId,
                 HttpContext.RequestAborted);
 
             return new JsonResult(dtoModel);
         }
 
-        public async Task<IActionResult> OnGetUserProjectsAsync([FromServices] IProjectController projectController)
+        public async Task<IActionResult> OnGetUserProjectsAsync([FromServices] IProjectRepository projectRepository)
         {
             var userId = GetUserId();
-            if(userId == -1) return Unauthorized();
+            if (userId == -1) return Unauthorized();
 
-            var dtoProjectModels = await projectController.GetProjectsForUserAsync(userId, HttpContext.RequestAborted);
+            var dtoProjectModels = await projectRepository
+                .GetProjectsForUserAsync(userId, HttpContext.RequestAborted);
 
             return new JsonResult(dtoProjectModels);
         }
