@@ -1,5 +1,4 @@
 using MakeItWork.DTOModels;
-using MakeItWork.Services.ModelServices.ProjectRepository;
 using MakeItWork.Services.ModelServices.TaskRepository;
 using MakeItWork.Services.ModelServices.TaskService;
 using Microsoft.AspNetCore.Authorization;
@@ -33,43 +32,6 @@ namespace MakeItWork.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostCreateAsync(
-            string taskName,
-            string taskDescription,
-            int projectId,
-            List<int> assignedUsers,
-            DateTimeOffset? dueTo)
-        {
-            if (string.IsNullOrWhiteSpace(taskName))
-                return RedirectToPage();
-
-            var userId = GetUserId();
-            if (userId == -1) return Unauthorized();
-
-            CancellationToken ct = HttpContext.RequestAborted;
-
-            try
-            {
-                var taskAuthorId = GetUserId();
-                await _taskService
-                    .TryCreateTaskAsync(
-                        taskName,
-                        taskDescription,
-                        taskAuthorId,
-                        projectId,
-                        dueTo,
-                        assignedUsers,
-                        saveImmediatelly: false,
-                        ct);
-            }
-            catch
-            {
-                // TODO: do smth
-            }
-
-            return RedirectToPage();
-        }
-
         public async Task<IActionResult> OnPostCompleteAsync(int taskId)
         {
             var userId = GetUserId();
@@ -84,31 +46,7 @@ namespace MakeItWork.Pages
 
             return RedirectToPage();
         }
-        public async Task<IActionResult> OnPostUpdateAsync(
-            int taskId,
 
-            string taskName,
-            string taskDescription,
-            DateTimeOffset? dueTo,
-            List<int> assignedUsers)
-        {
-            var userId = GetUserId();
-            if (userId == -1) return Unauthorized();
-
-            var ct = HttpContext.RequestAborted;
-
-            await _taskService
-                .UpdateTaskAsync(
-                    taskId,
-                    taskName,
-                    taskDescription,
-                    userId,
-                    dueTo,
-                    assignedUsers,
-                    ct);
-
-            return RedirectToPage();
-        }
         public async Task<IActionResult> OnPostDeleteAsync(int taskId)
         {
             var userId = GetUserId();
@@ -124,31 +62,36 @@ namespace MakeItWork.Pages
             return RedirectToPage();
         }
 
-        public async Task<IActionResult> OnGetTaskDetailsAsync(int taskId)
-        {
-            var userId = GetUserId();
-            if (userId == -1) return Unauthorized();
+        // Not sure if ill leave it or change or something else
 
-            Console.WriteLine(userId);
+        //public async Task<IActionResult> OnGetTaskDetailsAsync(int taskId)
+        //{
+        //    var userId = GetUserId();
+        //    if (userId == -1) return Unauthorized();
 
-            var dtoModel = await _taskRepository.GetDetailedTaskByIdAsync(
-                taskId,
-                userId,
-                HttpContext.RequestAborted);
+        //    Console.WriteLine(userId);
 
-            return new JsonResult(dtoModel);
-        }
+        //    var dtoModel = await _taskRepository.GetDetailedTaskByIdAsync(
+        //        taskId,
+        //        userId,
+        //        HttpContext.RequestAborted);
 
-        public async Task<IActionResult> OnGetUserProjectsAsync([FromServices] IProjectRepository projectRepository)
-        {
-            var userId = GetUserId();
-            if (userId == -1) return Unauthorized();
+        //    return new JsonResult(dtoModel);
+        //}
 
-            var dtoProjectModels = await projectRepository
-                .GetProjectsForUserAsync(userId, HttpContext.RequestAborted);
 
-            return new JsonResult(dtoProjectModels);
-        }
+        // Same here, prlly use for filters?
+
+        //public async Task<IActionResult> OnGetUserProjectsAsync([FromServices] IProjectRepository projectRepository)
+        //{
+        //    var userId = GetUserId();
+        //    if (userId == -1) return Unauthorized();
+
+        //    var dtoProjectModels = await projectRepository
+        //        .GetProjectsForUserAsync(userId, HttpContext.RequestAborted);
+
+        //    return new JsonResult(dtoProjectModels);
+        //}
 
         private int GetUserId()
         {
