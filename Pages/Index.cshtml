@@ -1,4 +1,4 @@
-﻿    @page
+﻿@page
 @model MakeItWork.Pages.IndexModel
 @{
 }
@@ -12,9 +12,12 @@
 }
 <div class="container header-margin">
     <form method="post" id="form-task-create">
-        <input type="text" name="project-name" id="form-project-name" class="backgroundless" autocomplete="off">
-        <select name="project-id" id="form-project-select" class="backgroundless focusless" required>
+        <input type="text" name="taskName" id="form-project-name" class="backgroundless" autocomplete="off">
+        <select name="projectId" id="form-project-select" class="backgroundless focusless" required>
             <option disabled selected hidden>Select project</option>
+            @foreach(var project in Model.projectList){
+                <option value="@project.id">@project.name</option>
+            }
         </select>
         <button type="submit" id="form-button-create" class="backgroundless focusless">Create</button>
     </form>

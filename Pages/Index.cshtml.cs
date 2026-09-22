@@ -1,4 +1,5 @@
 using MakeItWork.DTOModels;
+using MakeItWork.Services.ModelServices.ProjectRepository;
 using MakeItWork.Services.ModelServices.TaskRepository;
 using MakeItWork.Services.ModelServices.TaskService;
 using Microsoft.AspNetCore.Authorization;
@@ -12,12 +13,19 @@ namespace MakeItWork.Pages
     public class IndexModel : PageModel
     {
         public List<TaskDTO> taskList = [];
+        public List<ProjectDTO> projectList = [];
 
+        private readonly IProjectRepository _projectRepository;
         private readonly ITaskRepository _taskRepository;
         private readonly ITaskService _taskService;
 
-        public IndexModel(ITaskRepository taskRepository, ITaskService taskService)
+        public IndexModel(
+            IProjectRepository projectRepository,
+            ITaskRepository taskRepository, 
+            ITaskService taskService)
         {
+            _projectRepository = projectRepository;
+
             _taskRepository = taskRepository;
             _taskService = taskService;
         }
@@ -27,9 +35,24 @@ namespace MakeItWork.Pages
             var userId = GetUserId();
             if (userId == -1) return Unauthorized();
 
-            taskList = await _taskRepository.GetTasksForUserAsync(userId, HttpContext.RequestAborted);
+            var ct = HttpContext.RequestAborted;
+
+            taskList = await _taskRepository.GetTasksForUserAsync(userId, ct);
+            projectList = await _projectRepository.GetProjectsForUserAsync(userId, ct);
 
             return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync(string taskName, int projectId)
+        {
+            var userId = GetUserId();
+            if(userId == -1) return Unauthorized();
+
+            var ct = HttpContext.RequestAborted;
+
+            await _taskService.TryCreateTaskAsync(taskName, "", userId, projectId, null, null, ct: ct);
+
+            return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostCompleteAsync(int taskId)
