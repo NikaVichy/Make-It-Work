@@ -105,20 +105,6 @@ namespace MakeItWork.Pages
         //    return new JsonResult(dtoModel);
         //}
 
-
-        // Same here, prlly use for filters?
-
-        //public async Task<IActionResult> OnGetUserProjectsAsync([FromServices] IProjectRepository projectRepository)
-        //{
-        //    var userId = GetUserId();
-        //    if (userId == -1) return Unauthorized();
-
-        //    var dtoProjectModels = await projectRepository
-        //        .GetProjectsForUserAsync(userId, HttpContext.RequestAborted);
-
-        //    return new JsonResult(dtoProjectModels);
-        //}
-
         private int GetUserId()
         {
             return int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId)
