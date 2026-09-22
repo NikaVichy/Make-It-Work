@@ -48,6 +48,9 @@ namespace MakeItWork.Pages
             var userId = GetUserId();
             if(userId == -1) return Unauthorized();
 
+            if (string.IsNullOrWhiteSpace(taskName)) 
+                return RedirectToPage();
+
             var ct = HttpContext.RequestAborted;
 
             await _taskService.TryCreateTaskAsync(taskName, "", userId, projectId, null, null, ct: ct);

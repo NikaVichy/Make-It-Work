@@ -14,3 +14,13 @@ document.querySelectorAll('.deadline').forEach(el => {
     }
     el.textContent = parsedDate;
 });
+
+const formContainer = {
+    textContainer: document.getElementById("form-project-name"),
+}
+
+document.getElementById("form-button-create").addEventListener("click", (e) => {
+    var textContainerValue = formContainer.textContainer.value;
+    
+    if(textContainerValue.trim() == "") { e.preventDefault(); }
+})
