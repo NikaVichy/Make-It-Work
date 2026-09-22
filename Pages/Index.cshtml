@@ -1,29 +1,30 @@
-﻿    @page
+﻿@page
 @model MakeItWork.Pages.IndexModel
 @{
 }
 
 @section styles{
     <link rel="stylesheet" href="~/Styles/Index.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 }
 
 @section scripts{
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-
-
     <script src="~/Scripts/Index.js"></script>
 }
 <div class="container header-margin">
+    <form method="post" id="form-task-create">
+        <input type="text" name="taskName" id="form-project-name" class="backgroundless" autocomplete="off">
+        <select name="projectId" id="form-project-select" class="backgroundless focusless" required>
+            <option disabled selected hidden>Select project</option>
+            @foreach(var project in Model.projectList){
+                <option value="@project.id">@project.name</option>
+            }
+        </select>
+        <button type="submit" id="form-button-create" class="backgroundless focusless">Create</button>
+    </form>
     <div class="task-container">
-        <button id="new-task-button">
-            <img src="~/Svgs/Plus_Black.svg" alt="Create task" class="new-task-cross">
-        </button>
         @foreach(var task in Model.taskList){
             <div class="task">
+                @* TODO: Info about task? *@
                 <a href="javascript:void(0)" class="task-name" data-id="@task.id">@task.taskName</a>
                 <div class="project-tag-status">
                     <a href="/projects/@task.projectId" class="task-project">@task.projectName</a>
@@ -42,49 +43,5 @@
                 <input type="submit" asp-page-handler="Delete" value="Delete task">
             </form>
         }
-    </div>
-</div>
-<div id="task-panel-wrapper">
-    <div id="task-panel">
-        <button id="task-panel-close">
-            <img src="~/Svgs/Cross.svg" alt="close">
-        </button>
-        <form method="post" class="task-panel-padding">
-            <input type="hidden" name="taskId" id="task-panel-id">
-            <div class="task-panel-text-container">
-                <textarea name="taskName" id="task-panel-name" autocomplete="off" autocapitalize="off" class="input-colorer" placeholder="Task name"></textarea>
-                <textarea name="taskDescription" id="task-panel-description" autocomplete="off" autocapitalize="off" class="input-colorer" placeholder="Task description"></textarea>
-            </div>
-            <div class="task-panel-info">
-                <p>Author:</p>
-                <a href="#" id="task-author"></a>
-                <br/>
-                <br/>
-                <p>Project:</p>
-                <select name="projectId" id="project-id" disabled="disabled">
-
-                </select>
-                <br/>
-
-                <p>Assigned users:</p>
-                <select name="assignedUsers" id="assigned-users" multiple>
-                    <option value="1">Me</option>
-                    <option value="2">notme2</option>
-                    <option value="3">notme2</option>
-                </select>
-                <br/>
-
-                <p>Created at:</p>
-                <p id="task-panel-creation"></p>
-                <br>
-                <p>Due to:</p>
-                <input type="text" name="dueTo" id="task-panel-dueTo" placeholder="DD.MM.YYYY HH:MM" autocomplete="off">
-                @* <div>
-                    some tags shee
-                </div> *@
-                <input type="submit" value="Submit" asp-page-handler="Update" id="task-panel-submit-update">
-                <input type="submit" value="Create" asp-page-handler="Create" id="task-panel-submit-create">
-            </div>
-        </form>
     </div>
 </div>

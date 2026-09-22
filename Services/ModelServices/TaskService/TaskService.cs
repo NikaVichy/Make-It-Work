@@ -1,5 +1,4 @@
-﻿using MakeItWork.DTOModels;
-using MakeItWork.Models;
+﻿using MakeItWork.Models;
 using MakeItWork.Services.ModelServices.BaseService;
 using MakeItWork.Services.ModelServices.ProjectRepository;
 using MakeItWork.Services.ModelServices.TaskRepository;
@@ -28,7 +27,6 @@ namespace MakeItWork.Services.ModelServices.TaskService
             int taskProjectId,
             DateTimeOffset? dueTo,
             List<int>? assignedUsers,
-            bool saveImmediatelly = true,
             CancellationToken ct = default)
         {
             var userIdsWithAccess = (await _projectRepository.GetUserIdsWithAccessAsync(taskProjectId, ct)).ToHashSet();
