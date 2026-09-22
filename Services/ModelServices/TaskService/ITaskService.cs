@@ -11,7 +11,6 @@ namespace MakeItWork.Services.ModelServices.TaskService
             int taskProjectId,
             DateTimeOffset? dueTo,
             List<int>? assignedUsers,
-            bool saveImmediatelly = true,
             CancellationToken ct = default);
         public Task UpdateTaskAsync(
             int taskId,
