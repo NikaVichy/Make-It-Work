@@ -11,9 +11,17 @@
     <script src="~/Scripts/Index.js"></script>
 }
 <div class="container header-margin">
+    <form method="post" id="form-task-create">
+        <input type="text" name="project-name" id="form-project-name" class="backgroundless" autocomplete="off">
+        <select name="project-id" id="form-project-select" class="backgroundless focusless" required>
+            <option disabled selected hidden>Select project</option>
+        </select>
+        <button type="submit" id="form-button-create" class="backgroundless focusless">Create</button>
+    </form>
     <div class="task-container">
         @foreach(var task in Model.taskList){
             <div class="task">
+                @* TODO: Info about task? *@
                 <a href="javascript:void(0)" class="task-name" data-id="@task.id">@task.taskName</a>
                 <div class="project-tag-status">
                     <a href="/projects/@task.projectId" class="task-project">@task.projectName</a>
