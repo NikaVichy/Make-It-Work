@@ -1,6 +1,4 @@
-﻿using MakeItWork.DTOModels;
-
-namespace MakeItWork.Services.ModelServices.TaskService
+﻿namespace MakeItWork.Services.ModelServices.TaskService
 {
     public interface ITaskService
     {
@@ -22,8 +20,8 @@ namespace MakeItWork.Services.ModelServices.TaskService
             CancellationToken ct = default);
 
         public Task ChangeTaskCompletionAsync(
-            int taskId, 
-            int userId, 
+            int taskId,
+            int userId,
             CancellationToken ct = default);
 
         public Task ChangeTaskVisibilityAsync(

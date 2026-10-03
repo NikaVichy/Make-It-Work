@@ -36,6 +36,11 @@
 .project-background{
     position: absolute;
 
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
     top: 10px;
     bottom: 10px;
     right: 10px;
@@ -72,4 +77,86 @@
 .owner{
     margin-left: 15px;
     margin-bottom: 13px;
+}
+
+#form-holder{
+    display: none;
+    position: fixed;
+
+    top: 0;
+    bottom: 0;
+
+    box-sizing: border-box;
+
+    width: 100vw;
+    height: 100vh;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    justify-content: center;
+    align-items: center;
+}
+
+#project-form{
+    display: flex;
+    flex-direction: column;
+
+    background-color: #d9d9d9;
+
+    border-radius: 25px;
+
+    padding: 20px;
+
+    height: 70vh;
+    width: max(70vw, 200px);
+
+    gap: 20px;
+}
+
+#close-form-button{
+    cursor: pointer;
+    
+    width: 20px;
+    height: 20px;
+}
+
+#project-name{
+    height: 5vh;
+    
+    border: 1px solid black;
+    border-radius: 20px;
+
+    padding: 0 10px;
+    font-size: 20px;
+
+    background: none;
+}
+
+#project-description{
+    height: 55vh;
+
+    border: 1px solid black;
+    border-radius: 20px;
+
+    padding: 5px 10px;
+
+    font-size: 20px;
+    
+    background: none;
+
+    resize: none;
+    background-attachment: unset;
+}
+
+#submit-button{
+    background-color: black;
+    border: none;
+
+    border-radius: 20px;
+
+    color: #d9d9d9;
+
+    height: 5vh;
+
+    font-size: 20px;
 }
