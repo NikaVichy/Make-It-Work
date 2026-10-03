@@ -3,6 +3,36 @@
 @{
 }
 
-@foreach(var project in Model.projectModels){
-    <p>@project.name</p>
+@section styles{
+    <link rel="stylesheet" href="~/Styles/Project.css">
 }
+
+@section scripts{
+    <script src="~/Scripts/Project.js"></script>
+}
+
+<div class="project-container header-margin">
+    <div id="new-project" class="project new-project">
+        <div class="project-background">
+            <img src="~/Svgs/Plus_Black.svg" alt="new project">
+        </div>
+    </div>
+    @foreach(var project in Model.projectModels){
+    <a href="Project/@project.id" class="project">
+        <div class="project-background"></div>
+        <div class="naming-box">
+            <p class="project-name">@project.name</p>
+            <p class="owner">@@NikaVich</p>
+        </div>
+    </a>
+    }
+</div>
+<div id="form-holder">
+    <form method="post" id="project-form">
+        <img src="~/Svgs/Close_X.svg" alt="Close" id="close-form-button">
+        <input type="text" name="projectName" id="project-name" placeholder="Project name">
+        <textarea type="text" name="projectDescription" id="project-description" placeholder="Description"></textarea>
+        
+        <input type="submit" value="Create" id="submit-button">
+    </form>
+</div>
