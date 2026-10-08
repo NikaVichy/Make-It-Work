@@ -8,22 +8,30 @@ namespace MakeItWork.Services.ModelServices.ProjectService
     public class ProjectService : BaseService<ProjectModel, IProjectRepository>, IProjectService
     {
         private readonly IUnitOfWork _unitOfWork = null!;
-        public ProjectService(IProjectRepository projectRepository) : base(projectRepository) { }
+        public ProjectService(
+            IUnitOfWork unitOfWork,
+            IProjectRepository projectRepository) : base(projectRepository)
+        {
+            _unitOfWork = unitOfWork;
+        }
 
-        public async Task TryCreateProjectAsync(
+        public async Task<ProjectModel> TryCreateNewProjectAsync(
             int userId, 
             string projectName, 
             string projectDescription, 
             CancellationToken ct = default)
         {
-            var newProject = new ProjectModel
+            var projectModel = new ProjectModel
             {
                 projectName = projectName,
                 projectDescription = projectDescription,
                 ownerId = userId,
             };
+            var dbProjectModel = await _repository.CreateModelAsync(projectModel, saveImmediatelly: false, ct: ct);
 
-            await _repository.CreateModelAsync(newProject, ct: ct);
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            return dbProjectModel;
         }
     }
 }

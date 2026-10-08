@@ -1,8 +1,10 @@
-﻿namespace MakeItWork.Services.ModelServices.ProjectService
+﻿using MakeItWork.Models;
+
+namespace MakeItWork.Services.ModelServices.ProjectService
 {
     public interface IProjectService
     {
-        public Task TryCreateProjectAsync(
+        public Task<ProjectModel> TryCreateNewProjectAsync(
             int userId, 
             string projectName, 
             string projectDescription, 
