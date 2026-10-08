@@ -32,18 +32,15 @@ namespace MakeItWork.Pages
 
         public async Task<IActionResult> OnPostAsync(string? projectName, string? projectDescription)
         {
-            var userId = GetUserId();
-            if (userId == -1) return RedirectToPage();
-
             if (string.IsNullOrWhiteSpace(projectName)) return BadRequest();
 
-            await _projectService.TryCreateProjectAsync(
-                userId, 
-                projectName, 
-                projectDescription ?? "", 
-                ct: HttpContext.RequestAborted);
+            var userId = GetUserId();
+            if (userId == -1) return Unauthorized();
 
-            return RedirectToPage();
+            var dbProjectModel = await _projectService.TryCreateNewProjectAsync(
+                userId, projectName, projectDescription ?? "", HttpContext.RequestAborted);
+
+            return Redirect($"~/Project/{dbProjectModel.id}");
         }
 
         private int GetUserId()

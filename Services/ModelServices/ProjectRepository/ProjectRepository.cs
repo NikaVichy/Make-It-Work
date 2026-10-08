@@ -24,6 +24,13 @@ namespace MakeItWork.Services.ModelServices.ProjectRepository
             name = p.projectName,
         };
 
+        public async Task<bool> UserHasAccessAsync(int projectId, int userId, CancellationToken ct = default)
+        {
+            return await _GetProjectsAccessibleForUser(userId)
+                .Where(p => p.id == projectId)
+                .AnyAsync(ct);
+        }
+
         public async Task<ProjectModel?> GetModelForUpdateAsync(int projectId, int userId, CancellationToken ct = default)
         {
             return await _dbSet
