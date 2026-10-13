@@ -9,7 +9,7 @@ In development.
 
 ## About
 
-Make It Work helps users manage their tasks, track progress, and stay organized. The project was built to practice and demonstrate [основные навыки или технологии].
+Make It Work helps users manage their tasks, track progress, and stay organized. The project was built to practice and demonstrate.
 
 ## Features
 
